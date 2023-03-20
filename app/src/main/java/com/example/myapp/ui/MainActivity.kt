@@ -27,6 +27,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.myapp.model.TabItem
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,11 +46,21 @@ class MainActivity : ComponentActivity() {
 
                     
                 ) {
-                    ConverterApp()
+                    MyApp()
                 }
             }
         }
     }
+}
+
+@Composable
+fun MyApp() {
+    val items = listOf(
+        TabItem("Home", Icons.Filled.Home, route = "Home"),
+        TabItem("Favourite", Icons.Filled.Favorite, route = "Favourites"),
+        TabItem("Info", Icons.Filled.Info, route = "Info"),
+    )
+    BasicLayout(items)
 }
 
 @Composable
@@ -59,37 +75,19 @@ fun LoadingScreen() {
 
 @Composable
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-fun ConverterApp(exchangeRateViewModel: ExchangeRateViewModel = viewModel()) {
+fun BasicLayout(items: List<TabItem>,) {
+    val navController = rememberNavController()
+
     Scaffold(
         topBar = {
-            MainTopBar()
+            TopAppBar(
+                title = { Text(stringResource(R.string.currency_converter_1)) },
+            )
         },
-        content = {
-            when (exchangeRateViewModel.exchangeRatesUIState) {
-                is ExchangeRatesUIState.Success -> CalculatorScreen(
-                    eurInput = exchangeRateViewModel.eurInput,
-                    czkOutput = exchangeRateViewModel.czkOutput,
-                    changeCzk = { exchangeRateViewModel.changeCzk(it) },
-                    convertEurtoCzk =  { exchangeRateViewModel.convertEurtoCzk() }
-                )
-                is ExchangeRatesUIState.Error -> ErrorScreen()
-                is ExchangeRatesUIState.Loading -> LoadingScreen()
-            }
-        },
+        content = { MyNavController(navController = navController) },
+
         bottomBar = {
-            BottomAppBar(
-                cutoutShape = CircleShape
-            ) {
-                IconButton(onClick = {}) {
-                    Icon(Icons.Filled.Favorite, contentDescription = "Favorite")
-                }
-                IconButton(onClick = {}) {
-                    Icon(Icons.Filled.Search, contentDescription = "Search")
-                }
-                IconButton(onClick = {}) {
-                    Icon(Icons.Filled.MoreVert, contentDescription = "More")
-                }
-            }
+            MyBottomNavigation(items, navController)
         },
     )
 
@@ -134,36 +132,73 @@ fun CalculatorScreen(eurInput: String, czkOutput: Double, changeCzk: (value:Stri
 
 
 @Composable
-fun MainTopBar() {
-    var expanded by remember { mutableStateOf(false) }
-    TopAppBar(
-        title = {
-
-            Text("Currency Converter")
-        },
-
-        actions = {
-            IconButton(onClick = {
-                expanded = !expanded
-            }) {
-                Icon(Icons.Filled.MoreVert, contentDescription = null)
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                DropdownMenuItem(onClick = { }) {
-                    Text("Info")
-                }
-                DropdownMenuItem(onClick = {  }) {
-                    Text("Settings")
-                }
-            }
-
+fun MyBottomNavigation(items: List<TabItem>, navController: NavController) {
+    var selectedItem by remember { mutableStateOf(0) }
+    BottomNavigation {
+        items.forEachIndexed{index,item ->
+            BottomNavigationItem(
+                selected = selectedItem == index,
+                onClick = {
+                    selectedItem = index
+                    navController.navigate(item.route)
+                },
+                icon = {Icon(item.icon, contentDescription = null)},
+                label = { Text(item.label)}
+            )
         }
-    )
+
+    }
 
 }
+
+@Composable
+fun MainScreen() {
+    ExchangeRatesComponent()
+}
+
+@Composable
+fun FavouritesScreen() {
+    Text(text = "Favourites Screen")
+}
+
+@Composable
+fun InfoScreen() {
+    Text(text = "Info Screen")
+}
+
+@Composable
+fun MyNavController(navController: NavHostController) {
+
+    NavHost(
+        navController= navController,
+        startDestination = "Home"
+    ) {
+        composable(route = "Home") {
+            MainScreen()
+        }
+        composable(route = "Favourites") {
+            FavouritesScreen()
+        }
+        composable(route = "Info") {
+            InfoScreen()
+        }
+    }
+}
+
+@Composable
+fun ExchangeRatesComponent(exchangeRateViewModel: ExchangeRateViewModel = viewModel()) {
+    when (exchangeRateViewModel.exchangeRatesUIState) {
+        is ExchangeRatesUIState.Success -> CalculatorScreen(
+            eurInput = exchangeRateViewModel.eurInput,
+            czkOutput = exchangeRateViewModel.czkOutput,
+            changeCzk = { exchangeRateViewModel.changeCzk(it) },
+            convertEurtoCzk =  { exchangeRateViewModel.convertEurtoCzk() }
+        )
+        is ExchangeRatesUIState.Error -> ErrorScreen()
+        is ExchangeRatesUIState.Loading -> LoadingScreen()
+    }
+}
+
 
 
 

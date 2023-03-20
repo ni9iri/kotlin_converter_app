@@ -6,5 +6,6 @@
 
     <string name="result">Result is %s czk</string>
     <string name="currency_converter">Currency Converter</string>
+    <string name="currency_converter_1">Currency Converter</string>
 
 </resources>
