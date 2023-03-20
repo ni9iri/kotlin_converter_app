@@ -5,6 +5,8 @@ import android.icu.text.CaseMap.Title
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -26,11 +28,15 @@ import com.example.myapp.viewmodel.ExchangeRatesUIState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import com.example.myapp.model.TabItem
 
 
@@ -53,11 +59,13 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+
 @Composable
 fun MyApp() {
     val items = listOf(
         TabItem("Home", Icons.Filled.Home, route = "Home"),
-        TabItem("Favourite", Icons.Filled.Favorite, route = "Favourites"),
+        TabItem("Image", Icons.Filled.Favorite, route = "Image"),
         TabItem("Info", Icons.Filled.Info, route = "Info"),
     )
     BasicLayout(items)
@@ -113,9 +121,15 @@ fun CalculatorScreen(eurInput: String, czkOutput: Double, changeCzk: (value:Stri
             modifier = Modifier.fillMaxWidth()
         )
         Text(
-            text= stringResource(R.string.result,String.format("%.2f", czkOutput).replace('.', ',')),
+            text= stringResource(R.string.result,String.format("%.2f Kč", czkOutput).replace('.', ',')),
 
-            modifier = Modifier.padding(start = 16.dp),
+            modifier = Modifier
+
+                .background(Color.Gray)
+                .fillMaxWidth(),
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
         )
         Button(
             onClick = {
@@ -157,8 +171,18 @@ fun MainScreen() {
 }
 
 @Composable
-fun FavouritesScreen() {
-    Text(text = "Favourites Screen")
+fun ImageScreen() {
+    ImageCoil()
+}
+
+@Composable
+fun ImageCoil() {
+    Image(painter = rememberAsyncImagePainter("https://images.pexels.com/photos/534216/pexels-photo-534216.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1/image.jpg"),
+        contentDescription = null,
+        modifier = Modifier
+            .size(400.dp))
+
+
 }
 
 @Composable
@@ -176,8 +200,8 @@ fun MyNavController(navController: NavHostController) {
         composable(route = "Home") {
             MainScreen()
         }
-        composable(route = "Favourites") {
-            FavouritesScreen()
+        composable(route = "Image") {
+            ImageScreen()
         }
         composable(route = "Info") {
             InfoScreen()
