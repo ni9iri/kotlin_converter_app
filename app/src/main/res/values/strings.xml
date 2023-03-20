@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">myApp</string>
+    <string name="enter_euros">Enter Euros</string>
+
+    <string name="calculate">Calculate</string>
+
+    <string name="result">Result is %s czk</string>
+    <string name="currency_converter">Currency Converter</string>
+
+</resources>
